@@ -1,0 +1,3 @@
+rootProject.name = 'nginx-jwt-module'
+include 'boot1'
+include 'boot2'

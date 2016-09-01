@@ -1,0 +1,24 @@
+version: '2'
+services:
+
+  nginx:
+    image: nginx
+    ports:
+      - "8083:80"
+    volumes:
+      - ./docker/nginx/conf:/etc/nginx:ro
+    depends_on:
+      - "boot1"
+      - "boot2"
+
+  boot1:
+    build:
+      context: ./boot1
+    ports:
+      - "8084:8080"
+
+  boot2:
+    build:
+      context: ./boot2
+    ports:
+      - "8085:8080"

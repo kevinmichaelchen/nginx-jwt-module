@@ -1,0 +1,4 @@
+jar {
+    baseName = 'nginx-docker-test-' + project.name
+    version = project.getParent().version
+}
