@@ -19,7 +19,6 @@ ARG WITH_RTMP=false
 COPY setup/ ${NGINX_SETUP_DIR}/
 RUN bash ${NGINX_SETUP_DIR}/install.sh
 
-COPY nginx.conf /etc/nginx/nginx.conf
 COPY entrypoint.sh /sbin/entrypoint.sh
 RUN chmod 755 /sbin/entrypoint.sh
 

@@ -76,8 +76,8 @@ static ngx_int_t ngx_http_rampart_jwt_handler(ngx_http_request_t *r)
     r->headers_out.content_type.data = (u_char *) "text/plain";
 
     // Put the JWT in the Authorization header
-    r->headers_out.authorization.len = sizeof("Bearer <token>")
-    r->headers_out.authorization.data = (u_char *) "Bearer <token>";
+    //r->headers_out.authorization.len = sizeof("Bearer <token>")
+    //r->headers_out.authorization.data = (u_char *) "Bearer <token>";
 
     /* Allocate a new buffer for sending out the reply. */
     b = ngx_pcalloc(r->pool, sizeof(ngx_buf_t));

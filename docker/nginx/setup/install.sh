@@ -76,6 +76,7 @@ download_and_extract "${NGINX_DOWNLOAD_URL}" "${NGINX_SETUP_DIR}/nginx"
 cd ${NGINX_SETUP_DIR}/nginx
 
 ./configure \
+  --add-module=${NGINX_SETUP_DIR}/helloworld \
   --prefix=/usr/share/nginx \
   --conf-path=/etc/nginx/nginx.conf \
   --sbin-path=/usr/sbin \
