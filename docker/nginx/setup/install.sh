@@ -77,6 +77,7 @@ cd ${NGINX_SETUP_DIR}/nginx
 
 ./configure \
   --add-module=${NGINX_SETUP_DIR}/helloworld \
+  --add-module=${NGINX_SETUP_DIR}/rampart-jwt \
   --prefix=/usr/share/nginx \
   --conf-path=/etc/nginx/nginx.conf \
   --sbin-path=/usr/sbin \
