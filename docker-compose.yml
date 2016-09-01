@@ -2,7 +2,8 @@ version: '2'
 services:
 
   nginx:
-    image: nginx
+    build:
+      context: ./docker/nginx
     ports:
       - "8083:80"
     volumes:
