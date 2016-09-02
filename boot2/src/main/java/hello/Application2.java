@@ -21,7 +21,8 @@ public class Application2
 	@RequestMapping( "/" )
 	public String home(
 		@CookieValue( "foo" ) String foo,
-		@RequestHeader( "bar" ) String bar
+		@RequestHeader( "bar" ) String bar,
+		@RequestHeader( "Authorization" ) String authorization
 	) throws UnknownHostException
 	{
 		StringBuilder sb = new StringBuilder();
@@ -36,7 +37,11 @@ public class Application2
 			.append( " " )
 			.append( "barHeader =" )
 			.append( " " )
-			.append( bar );
+			.append( bar )
+			.append( " " )
+			.append( "Authorization =" )
+			.append( " " )
+			.append( authorization );
 		System.out.println( sb.toString() );
 		logger.info( sb.toString() );
 		return sb.toString();
