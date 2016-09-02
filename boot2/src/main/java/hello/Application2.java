@@ -18,6 +18,12 @@ public class Application2
 {
 	private static final Logger logger = LoggerFactory.getLogger( Application2.class );
 
+	@RequestMapping( "/login" )
+	public String login()
+	{
+		return String.format( "Welcome to %s's login page", Application2.class.getName() );
+	}
+
 	@RequestMapping( "/" )
 	public String home(
 		@CookieValue( "foo" ) String foo,
