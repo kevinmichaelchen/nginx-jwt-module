@@ -15,7 +15,7 @@ static ngx_int_t ngx_http_rampart_jwt_handler(ngx_http_request_t *r);
 static ngx_command_t ngx_http_rampart_jwt_commands[] = {
 
     { ngx_string("rampart_jwt"), /* directive */
-      NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_NOARGS, /* server + location contexts, takes no args */
+      NGX_HTTP_SRV_CONF|NGX_HTTP_LOC_CONF|NGX_CONF_TAKE1, /* server + location contexts, takes 1 argument */
       ngx_http_rampart_jwt, /* configuration setup function */
       0, /* No offset. Only one context is supported. */
       0, /* No offset when storing the module configuration on struct. */
@@ -75,9 +75,24 @@ static ngx_int_t ngx_http_rampart_jwt_handler(ngx_http_request_t *r)
     r->headers_out.content_type.len = sizeof("text/plain") - 1;
     r->headers_out.content_type.data = (u_char *) "text/plain";
 
-    // Put the JWT in the Authorization header
-    //r->headers_out.authorization.len = sizeof("Bearer <token>")
-    //r->headers_out.authorization.data = (u_char *) "Bearer <token>";
+    // Get directive arguments
+    ngx_str_t *value, name;
+    u_char *cookie_data;
+    size_t cookie_len;
+
+    // Get the arguments
+    // TODO where to get cf
+    value = cf->args->elts;
+
+    // Get the first argument
+    name = value[1];
+
+    // Get contents of the first argument
+    cookie_data = name.data;
+    cookie_len = name.len;
+
+    // Add Authorization header!!
+    set_custom_header_in_headers_out(r, ngx_string("Authorization"), ngx_string(cookie_data));
 
     /* Allocate a new buffer for sending out the reply. */
     b = ngx_pcalloc(r->pool, sizeof(ngx_buf_t));
@@ -122,4 +137,87 @@ static char *ngx_http_rampart_jwt(ngx_conf_t *cf, ngx_command_t *cmd, void *conf
     clcf->handler = ngx_http_rampart_jwt_handler;
 
     return NGX_CONF_OK;
+}
+
+static ngx_int_t
+set_custom_header_in_headers_out(ngx_http_request_t *r, ngx_str_t *key, ngx_str_t *value) {
+    ngx_table_elt_t   *h;
+
+    /*
+    All we have to do is just to allocate the header...
+    */
+    h = ngx_list_push(&r->headers_out.headers);
+    if (h == NULL) {
+        return NGX_ERROR;
+    }
+
+    /*
+    ... setup the header key ...
+    */
+    h->key = *key;
+
+    /*
+    ... and the value.
+    */
+    h->value = *value;
+
+    /*
+    Mark the header as not deleted.
+    */
+    h->hash = 1;
+
+    return NGX_OK;
+}
+
+/**
+ * Brute force search for one header with the specified name.
+ */
+static ngx_table_elt_t *
+search_headers_in(ngx_http_request_t *r, u_char *name, size_t len) {
+    ngx_list_part_t            *part;
+    ngx_table_elt_t            *h;
+    ngx_uint_t                  i;
+
+    /*
+    Get the first part of the list. There is usual only one part.
+    */
+    part = &r->headers_in.headers.part;
+    h = part->elts;
+
+    /*
+    Headers list array may consist of more than one part,
+    so loop through all of it
+    */
+    for (i = 0; /* void */ ; i++) {
+        if (i >= part->nelts) {
+            if (part->next == NULL) {
+                /* The last part, search is done. */
+                break;
+            }
+
+            part = part->next;
+            h = part->elts;
+            i = 0;
+        }
+
+        /*
+        Just compare the lengths and then the names case insensitively.
+        */
+        if (len != h[i].key.len || ngx_strcasecmp(name, h[i].key.data) != 0) {
+            /* This header doesn't match. */
+            continue;
+        }
+
+        /*
+        Ta-da, we got one!
+        Note, we'v stop the search at the first matched header
+        while more then one header may fit.
+        */
+        return &h[i];
+    }
+
+    /*
+    No headers was found
+    */
+    return NULL;
 }
